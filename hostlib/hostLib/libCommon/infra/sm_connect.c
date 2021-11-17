@@ -401,6 +401,9 @@ U16 SM_RjctConnect(void **conn_ctx, const char *connectString, SmCommState_t *co
 U16 SM_I2CConnect(void **conn_ctx, SmCommState_t *commState, U8 *atr, U16 *atrLen, const char *pConnString)
 {
     U16 status = SMCOM_COM_FAILED;
+#if defined(WITH_LIB_SETEEC)
+    return SMCOM_OK;
+#endif
 #if defined(T1oI2C)
     if (commState->sessionResume == 1) {
         status = smComT1oI2C_Resume(conn_ctx, pConnString);
@@ -611,7 +614,11 @@ U16 SM_Close(void *conn_ctx, U8 mode)
     sw = smComPCSC_Close(mode);
 #endif
 #if defined(T1oI2C)
+#if defined(WITH_LIB_SETEEC)
+    return SMCOM_OK;
+#else
     sw = smComT1oI2C_Close(conn_ctx, mode);
+#endif
 #endif
 #if defined(SMCOM_JRCP_V1)
     AX_UNUSED_ARG(mode);
