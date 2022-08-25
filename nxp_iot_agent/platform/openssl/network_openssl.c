@@ -139,6 +139,7 @@ void print_openssl_errors(char* function)
 int network_openssl_init(openssl_network_context_t* network_ctx) {
 	int network_status = NETWORK_STATUS_OK;
 	int openssl_status;
+	const char *default_algorithms = "RSA,RAND,EC";
 
 #if (OPENSSL_VERSION_NUMBER < 0x10100000L)
 	// Load the config file:
@@ -148,14 +149,16 @@ int network_openssl_init(openssl_network_context_t* network_ctx) {
 	ERR_load_BIO_strings();
 	ERR_load_crypto_strings();
 	SSL_load_error_strings();
-#else	
-       OPENSSL_INIT_SETTINGS *settings = OPENSSL_INIT_new();
-       OPENSSL_INIT_set_config_filename(settings, "/etc/ssl/openssl_conf_sss.cnf");
-       OPENSSL_init_crypto(OPENSSL_INIT_LOAD_CONFIG, settings);
+#else
+	OPENSSL_init_crypto(OPENSSL_INIT_LOAD_CONFIG, NULL);
 #endif
 
 	ENGINE *e = ENGINE_by_id(NETWORK_OPENSSL_ENGINE_ID);
 	NETWORK_ASSERT_OR_EXIT_MSG(e != NULL, "Error finding OpenSSL Engine by id (id = %s)\n", NETWORK_OPENSSL_ENGINE_ID);
+	openssl_status = ENGINE_init(e);
+	NETWORK_ASSERT_OR_EXIT_MSG(openssl_status == 1, "Engine initialization failed: %d", openssl_status);
+	openssl_status = ENGINE_set_default_string(e, default_algorithms);
+	NETWORK_ASSERT_OR_EXIT_MSG(openssl_status == 1, "Failed to set default list of algorithms (%s): %d", default_algorithms, openssl_status);
 
 	IOT_AGENT_INFO("Setting log level OpenSSL-engine %s to 0x%02X.\n", NETWORK_OPENSSL_ENGINE_ID, NXP_IOT_AGENT_OPENSSL_ENGINE_LOG_LEVEL);
 	openssl_status = ENGINE_ctrl(e, ENGINE_CMD_BASE, NXP_IOT_AGENT_OPENSSL_ENGINE_LOG_LEVEL, NULL, NULL);
