@@ -27,12 +27,6 @@ INCLUDE(scripts/cmake_options.cmake)
 
 INCLUDE(scripts/git_version.cmake)
 
-CONFIGURE_FILE(
-    ${CMAKE_SOURCE_DIR}/demos/ksdk/common/git_version.h.in
-    ${CMAKE_BINARY_DIR}/git_version.h
-    @ONLY
-)
-
 SET(CMAKE_MODULE_PATH "./scripts")
 
 INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR})
