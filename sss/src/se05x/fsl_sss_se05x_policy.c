@@ -570,7 +570,6 @@ sss_status_t sss_se05x_create_object_policy_buffer(sss_policy_t *policies, uint8
                 default:
                     break;
                 }
-                policies->policies[indexArray[j]] = NULL;
             }
             memcpy(pbuff + offset, temp_buffer, (temp_buffer[0] + 1));
             *buf_len += (temp_buffer[0] + 1);
